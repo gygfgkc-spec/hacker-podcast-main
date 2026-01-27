@@ -1,3 +1,10 @@
+packages:
+  - 'app'
+  - 'worker'
+  - 'workflow'
+  - 'TrendRadar'
+  - 'bridge'
+
 onlyBuiltDependencies:
   - esbuild
   - puppeteer
