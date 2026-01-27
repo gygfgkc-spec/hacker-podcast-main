@@ -1,0 +1,55 @@
+services:
+  trendradar:
+    image: wantcat/trendradar:latest
+    container_name: trendradar
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./TrendRadar/config:/app/config
+      - ./TrendRadar/output:/app/output
+    environment:
+      - TZ=Asia/Shanghai
+      - ENABLE_WEBSERVER=true
+      - WEBSERVER_PORT=8080
+      - AI_ANALYSIS_ENABLED=true
+      - AI_API_KEY=${AI_API_KEY}
+      - AI_MODEL=${AI_MODEL:-deepseek-chat}
+      - CRON_SCHEDULE=*/30 * * * *
+      - RUN_MODE=cron
+      - IMMEDIATE_RUN=true
+
+  bridge:
+    build: ./bridge
+    container_name: bridge
+    restart: unless-stopped
+    depends_on:
+      - trendradar
+      - hacker-podcast
+    volumes:
+      - ./TrendRadar/output:/app/trend_output:ro
+    environment:
+      - TZ=Asia/Shanghai
+      - AI_API_KEY=${AI_API_KEY}
+      - AI_BASE_URL=${AI_BASE_URL:-https://api.deepseek.com}
+      - AI_MODEL=${AI_MODEL:-deepseek-chat}
+      - HTML_PATH=/app/trend_output/html/latest/daily.html
+      - WORKER_URL=http://hacker-podcast:8787/api/cron
+      - POLL_INTERVAL=300
+
+  hacker-podcast:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: hacker-podcast
+    restart: unless-stopped
+    ports:
+      - "8787:8787"
+    environment:
+      - NODE_ENV=development
+      - OPENAI_API_KEY=${AI_API_KEY}
+      - OPENAI_BASE_URL=${AI_BASE_URL:-https://api.deepseek.com}
+      - OPENAI_MODEL=${AI_MODEL:-deepseek-chat}
+      # 本地运行时，R2 桶地址指向自身 static 路由
+      - HACKER_PODCAST_R2_BUCKET_URL=http://127.0.0.1:8787/static
+      - HACKER_PODCAST_WORKER_URL=http://hacker-podcast:8787

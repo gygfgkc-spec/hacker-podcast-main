@@ -1,0 +1,22 @@
+FROM node:20-slim
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm@9.7.1
+
+# Copy package files
+COPY package.json pnpm-workspace.yaml ./
+
+# Install dependencies
+RUN pnpm install
+
+# Copy source
+COPY . .
+
+# Expose port (default wrangler port)
+EXPOSE 8787
+
+# Command
+# We need to bind to 0.0.0.0 for Docker networking
+CMD ["npx", "wrangler", "dev", "--cwd", "worker", "--persist-to", "../.wrangler/state", "--ip", "0.0.0.0", "--port", "8787"]
