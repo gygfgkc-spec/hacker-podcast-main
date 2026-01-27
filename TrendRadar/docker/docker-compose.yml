@@ -1,0 +1,23 @@
+services:
+  trendradar:
+    image: wantcat/trendradar:latest
+    container_name: trendradar
+    restart: unless-stopped
+    ports:
+      # 如果想在局域网其他设备看，把 127.0.0.1: 去掉，只留 "8080:8080"
+      - "8080:8080"
+    volumes:
+      # 使用正斜杠 / 且两边加引号，这是 Windows Docker 最稳的写法
+      - "C:/Users/winterelse/Desktop/hacker-podcast-main/TrendRadar/config:/app/config"
+      - "C:/Users/winterelse/Desktop/hacker-podcast-main/TrendRadar/output:/app/output"
+    environment:
+      - TZ=Asia/Shanghai
+      - ENABLE_WEBSERVER=true
+      - WEBSERVER_PORT=8080
+      - FEISHU_WEBHOOK_URL=${FEISHU_WEBHOOK_URL}
+      - AI_ANALYSIS_ENABLED=true
+      - AI_API_KEY=${AI_API_KEY}
+      - AI_MODEL=deepseek/deepseek-chat
+      - CRON_SCHEDULE=*/30 * * * *
+      - RUN_MODE=cron
+      - IMMEDIATE_RUN=true
