@@ -74,6 +74,11 @@
     "typescript": "^5.9.3",
     "wrangler": "^4.56.0"
   },
+  "pnpm": {
+    "overrides": {
+      "@opennextjs/aws": "3.9.12"
+    }
+  },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged"
   },
