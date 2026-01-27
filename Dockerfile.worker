@@ -5,8 +5,9 @@ WORKDIR /app
 # Install pnpm
 RUN npm install -g pnpm@9.7.1
 
-# Skip Puppeteer Chromium download to fix build timeouts
+# Skip Puppeteer Chromium download (Both old and new env vars)
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 # Copy package files
 COPY package.json pnpm-workspace.yaml ./
