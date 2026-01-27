@@ -6,13 +6,16 @@ WORKDIR /app
 RUN npm install -g pnpm@9.7.1
 
 # Copy package files
+# We need to copy ALL package.json files if this is a workspace,
+# but assuming this is a simple repo, we'll try copying just the root ones.
 COPY package.json pnpm-workspace.yaml ./
+
+# 修复 pnpm install 报错：因为 pnpm-workspace.yaml 里定义了依赖，但我们可能没把子目录拷进来
+# 简单粗暴的方法：直接拷贝所有代码后再安装
+COPY . .
 
 # Install dependencies
 RUN pnpm install
-
-# Copy source
-COPY . .
 
 # Expose port (default wrangler port)
 EXPOSE 8787
