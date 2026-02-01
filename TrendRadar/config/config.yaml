@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════
-#                    TrendRadar 配置文件 (财经版)
-#                      Version: 2.0.0
+#                    TrendRadar 配置文件 (财经版 - 修复源)
+#                      Version: 2.1.0
 # ═══════════════════════════════════════════════════════════════
 
 
@@ -13,26 +13,23 @@ app:
 
 
 # ===============================================================
-# 2. 数据源 - 热榜平台 (保留大众热榜以捕捉破圈的大财经事件)
+# 2. 数据源 - 热榜平台
 # ===============================================================
 platforms:
   enabled: true
   sources:
     - id: "weibo"
-      name: "微博热搜"                # 往往能捕捉到突发的财经大瓜（如某公司暴雷）
-    
+      name: "微博热搜"
     - id: "douyin"
-      name: "抖音热榜"                # 捕捉散户情绪和热门财经解说
-    
+      name: "抖音热榜"
     - id: "zhihu"
-      name: "知乎热榜"                # 深度财经讨论和政策解读
-
+      name: "知乎热榜"
     - id: "toutiao"
-      name: "今日头条"                # 宏观政策和社会新闻
+      name: "今日头条"
 
 
 # ===============================================================
-# 3. 数据源 - RSS 订阅 (全面替换为财经源)
+# 3. 数据源 - RSS 订阅 (使用原生/稳定源替换不稳定的 RSSHub)
 # ===============================================================
 rss:
   enabled: true
@@ -42,35 +39,30 @@ rss:
     max_age_days: 2
 
   feeds:
-    # --- 核心源 1：华尔街见闻 (全球宏观与市场) ---
-    - id: "wallstreetcn-global"
-      name: "华尔街见闻-全球"
-      url: "https://rsshub.app/wallstreetcn/news/global"
+    # --- 核心源 1：Yahoo 财经 (原生，极稳) ---
+    - id: "yahoo-finance-top"
+      name: "Yahoo财经头条"
+      url: "https://finance.yahoo.com/news/rssindex"
 
-    # --- 核心源 2：财新网 (深度财经报道) ---
-    - id: "caixin-finance"
-      name: "财新网-金融"
-      url: "http://corp.caixin.com/rss/"
+    # --- 核心源 2：新浪财经 (原生，国内极稳) ---
+    - id: "sina-finance-roll"
+      name: "新浪财经滚动"
+      url: "https://feed.mix.sina.com.cn/api/roll/get?pageid=155&lid=1686&num=20&versionNumber=1.2.4&page=1&encode=utf-8"
 
-    # --- 核心源 3：金十数据 (黄金/外汇/快讯) ---
-    - id: "jin10-news"
-      name: "金十数据"
-      url: "https://rsshub.app/jin10/zy"
+    # --- 核心源 3：联合早报-财经 (原生，中文国际视角) ---
+    - id: "zaobao-business"
+      name: "联合早报-财经"
+      url: "https://www.zaobao.com.sg/rss/finance"
 
-    # --- 核心源 4：雪球 (股市热点/大V讨论) ---
-    - id: "xueqiu-hots"
-      name: "雪球热帖"
-      url: "https://rsshub.app/xueqiu/hots"
+    # --- 核心源 4：FT中文网 (原生，深度分析) ---
+    - id: "ft-chinese"
+      name: "FT中文网"
+      url: "https://www.ftchinese.com/rss/feed"
 
-    # --- 辅助源：Yahoo 财经 (港美股/国际视野) ---
+    # --- 辅助源：Yahoo 香港 (繁体中文，原生) ---
     - id: "yahoo-finance-hk"
       name: "Yahoo财经(HK)"
       url: "https://hk.finance.yahoo.com/news/rss"
-
-    # --- 辅助源：36氪 (科技股/一级市场) ---
-    - id: "36kr-finance"
-      name: "36氪-财经"
-      url: "https://rsshub.app/36kr/information/finance"
 
 
 # ===============================================================
@@ -89,7 +81,7 @@ report:
 # ===============================================================
 display:
   region_order:
-    - ai_analysis                     # AI 分析放最前，直接看结论
+    - ai_analysis
     - new_items
     - hotlist
     - rss
@@ -98,7 +90,7 @@ display:
   regions:
     hotlist: true
     new_items: true
-    rss: true                         # 开启 RSS 显示
+    rss: true
     standalone: false
     ai_analysis: true
 
@@ -109,7 +101,7 @@ display:
 
 
 # ===============================================================
-# 6. 推送通知
+# 6. 推送通知 (⚠️ 请务必在此处填入您的飞书 Webhook)
 # ===============================================================
 notification:
   enabled: true
@@ -122,7 +114,9 @@ notification:
 
   channels:
     feishu:
-      webhook_url: ""                 # 请填写飞书 Webhook
+      # 👇👇👇 请将您的飞书 Webhook 填在这里 👇👇👇
+      webhook_url: ""
+      # 👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆
 
     dingtalk:
       webhook_url: ""
@@ -166,7 +160,7 @@ storage:
   formats:
     sqlite: true
     txt: false
-    html: true                       # 必须开启 HTML 以供 Bridge 使用
+    html: true
 
   local:
     data_dir: "output"
@@ -215,7 +209,7 @@ ai_analysis:
   prompt_file: "ai_analysis_prompt.txt"
   mode: "follow_report"
   max_news_for_analysis: 60
-  include_rss: true                 # 必须开启，财经新闻主要来自 RSS
+  include_rss: true
   include_rank_timeline: true
 
 

@@ -36,31 +36,31 @@ const retryConfig: WorkflowStepConfig = {
   timeout: '30 minutes',
 }
 
-// --- 1. 数据源：财经/投资频道 ---
+// --- 1. 数据源：财经/投资频道 (稳定原生源) ---
 const DATA_SOURCES = [
-  // 华尔街见闻 - 全球
+  // Yahoo 财经头条 (原生，极稳)
   {
-    name: "WallstreetCN",
-    url: "https://rsshub.app/wallstreetcn/news/global",
-    type: "rsshub"
+    name: "Yahoo Finance Top",
+    url: "https://finance.yahoo.com/news/rssindex",
+    type: "yahoo"
   },
-  // 财新网 - 金融
+  // 新浪财经滚动 (原生，国内极稳)
   {
-    name: "Caixin Finance",
-    url: "http://corp.caixin.com/rss/",
-    type: "rsshub"
+    name: "Sina Finance",
+    url: "https://feed.mix.sina.com.cn/api/roll/get?pageid=155&lid=1686&num=20&versionNumber=1.2.4&page=1&encode=utf-8",
+    type: "sina"
   },
-  // 金十数据
+  // 联合早报-财经
   {
-    name: "Jin10",
-    url: "https://rsshub.app/jin10/zy",
-    type: "rsshub"
+    name: "Zaobao Business",
+    url: "https://www.zaobao.com.sg/rss/finance",
+    type: "rss"
   },
-  // 雪球热帖
+  // FT中文网
   {
-    name: "Xueqiu Hot",
-    url: "https://rsshub.app/xueqiu/hots",
-    type: "rsshub"
+    name: "FT Chinese",
+    url: "https://www.ftchinese.com/rss/feed",
+    type: "rss"
   }
 ];
 
