@@ -37,7 +37,8 @@ class ReportExtractor:
             if title:
                 analysis_text += f"【{title.get_text(strip=True)}】\n"
             if content:
-                analysis_text += f"{content.get_text(separator='\n', strip=True)}\n\n"
+                text = content.get_text(separator='\n', strip=True)
+                analysis_text += f"{text}\n\n"
 
         return analysis_text
 
