@@ -36,36 +36,35 @@ const retryConfig: WorkflowStepConfig = {
   timeout: '30 minutes',
 }
 
-// --- 1. 数据源：使用 RSSHub 获取垂直频道 ---
-// 相比全站 RSS，这些频道的噪音少很多，而且格式标准
+// --- 1. 数据源：财经/投资频道 ---
 const DATA_SOURCES = [
-  // 36氪 - 消费领域 (包含了美妆、零售)
+  // 华尔街见闻 - 全球
   {
-    name: "36Kr Consumer",
-    url: "https://rsshub.app/36kr/information/happy_life", 
+    name: "WallstreetCN",
+    url: "https://rsshub.app/wallstreetcn/news/global",
     type: "rsshub"
   },
-  // 界面新闻 - 消费频道
+  // 财新网 - 金融
   {
-    name: "Jiemian Consumer",
-    url: "https://rsshub.app/jiemian/list/108",
+    name: "Caixin Finance",
+    url: "http://corp.caixin.com/rss/",
     type: "rsshub"
   },
-  // 亿邦动力 - 跨境电商/美妆 (很多出海新闻)
+  // 金十数据
   {
-    name: "Ebrun",
-    url: "https://rsshub.app/ebrun/news",
+    name: "Jin10",
+    url: "https://rsshub.app/jin10/zy",
     type: "rsshub"
   },
-  // 补充：雅虎香港 (搜化妆品) - 这个最稳，作为保底
+  // 雪球热帖
   {
-    name: "Yahoo HK",
-    url: "https://hk.news.yahoo.com/rss/search?p=化妝品",
-    type: "yahoo"
+    name: "Xueqiu Hot",
+    url: "https://rsshub.app/xueqiu/hots",
+    type: "rsshub"
   }
 ];
 
-// 简单的 XML 解析，不再做关键词过滤，全部保留交给 AI
+// 简单的 XML 解析
 function parseRSS(xml: string, sourceName: string) {
   const items: any[] = [];
   const itemRegex = /<item>([\s\S]*?)<\/item>/g;
@@ -190,20 +189,19 @@ export class HackerNewsWorkflow extends WorkflowEntrypoint<Env, Params> {
           source: s.source
         }));
 
-        // AI 指令：把电子木鱼和汽车踢出去！
+        // AI 指令：筛选核心财经新闻
         const prompt = `
-        你是专业的化妆品行业主编。下面是一组新闻标题。
-        请仔细筛选出**真正属于“化妆品、美妆、医美、原料、护肤”行业**的新闻。
+        你是专业的财经主编。下面是一组新闻标题。
+        请仔细筛选出**真正属于“股票、宏观经济、黄金、科技投资”**领域的新闻。
 
         【排除规则】：
-        1. 坚决排除“汽车、电子产品、股票大盘、游戏、半导体”。
-        2. 排除“消费电子”、“电子木鱼”等无关消费品。
-        3. 排除纯粹的电商大促广告（如仅仅是带货）。
+        1. 排除纯娱乐新闻、体育新闻。
+        2. 排除过于琐碎的企业软文广告。
 
         【保留规则】：
-        1. 保留欧莱雅、雅诗兰黛等美妆巨头的财报或动态。
-        2. 保留药监局、新原料、合成生物等技术新闻。
-        3. 保留医美、护肤品市场分析。
+        1. 保留关于大盘、美联储、核心科技股（如英伟达、特斯拉）的新闻。
+        2. 保留关于黄金、汇率、大宗商品的分析。
+        3. 保留重要的政策变动。
 
         请返回一个纯 JSON 数组，只包含保留新闻的 index 值。例如：[0, 5, 12]
         如果没有相关的，返回 []。
@@ -241,9 +239,9 @@ export class HackerNewsWorkflow extends WorkflowEntrypoint<Env, Params> {
           console.warn("🚨 AI 筛选后为 0 条 (或抓取失败)，启用系统保底...");
           finalStories = [{
             id: 'fallback-001',
-            title: '行业洞察：美妆市场的技术变革与合规挑战',
+            title: '市场观察：静待美联储决议，市场缩量震荡',
             url: 'https://news.baidu.com',
-            description: '今日无重大新闻。AI 建议讨论话题：1. 重组胶原蛋白的团标落地影响；2. 国货品牌出海东南亚的机遇。',
+            description: '今日无重大新闻。AI 建议讨论话题：1. 黄金是否已经见顶？2. 科技股的回调是否是上车机会？',
             time: Date.now(),
             score: 100
           }];
@@ -341,7 +339,7 @@ export class HackerNewsWorkflow extends WorkflowEntrypoint<Env, Params> {
         const speakerName = match[1].trim();
         const content = match[2].trim();
         let gender = '女';
-        if (speakerName.includes('Dr') || speakerName.includes('刘') || speakerName.includes('男')) gender = '男';
+        if (speakerName.includes('Dr') || speakerName.includes('陈') || speakerName.includes('男')) gender = '男';
         const audio = await synthesize(content, gender, this.env);
         if (!audio.size) throw new Error('TTS size 0');
         const audioKey = `tmp/${podcastKey}-${index}.mp3`;
