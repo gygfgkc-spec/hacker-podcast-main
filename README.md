@@ -1,64 +1,48 @@
-💄 Project: Cosmetic Intelligence Audio Pipeline
+📈 Project: Financial Intelligence Audio Pipeline (财经早茶)
 📝 项目愿景
-本项目旨在打通 化妆品理化检验情报 的最后一公里。通过将 TrendRadar 自动化抓取的行业热点（NMPA 通告、成分研发、监管趋势），自动转化为适合 理化检验室新人 以及行业专家收听的深度音频播客。
+本项目旨在为 **A股/美股/黄金投资者** 打造一个全自动的情报与决策辅助系统。
+通过自动化抓取全网财经热点（华尔街见闻、财新、金十数据），利用 AI 进行深度复盘分析，并自动生成适合上下班路上收听的 **“老股民 VS 分析师”** 风格的财经播客。
 
-🏗️ 当前系统架构 (Status Quo)
-情报搜集端 (TrendRadar):
+🏗️ 系统架构
+1. 情报搜集与分析 (TrendRadar - Finance Edition)
+- **功能**: 24小时监控微博财经热搜、雪球、知乎及各大财经 RSS 源。
+- **AI 分析**: 每天定时对抓取到的数千条新闻进行清洗，并针对 **“大盘风向(沪深300)”、“科技前沿”、“黄金避险”** 三大板块进行深度研判。
+- **产物**: 每日生成包含 AI 投资建议的 HTML 研报，并**推送到飞书**。
 
-功能: 24小时监控微博、抖音及 Bing/Yahoo RSS 源。
+2. 桥接与脚本生成 (Bridge Script)
+- **功能**: 监听 TrendRadar 的研报生成。
+- **处理**: 调用 DeepSeek API，将严肃的研报转化为 **“老张(散户) 与 小王(分析师)”** 的幽默对话脚本。
+- **风格**: 拒绝八股文，充满“韭菜味”的真实感与数据支撑的专业度。
 
-现状: 已成功配置“理化检验专用”过滤器，能精准筛选出 2-5% 的核心情报。
+3. 音频生成 (Hacker-Podcast)
+- **功能**: 接收 Bridge 传来的脚本，利用 Edge-TTS 生成逼真的多角色语音。
+- **产物**: 最终生成 MP3 播客文件，并更新 RSS Feed。
 
-产物: 每日在本地 output/html/YYYY-MM-DD/ 生成包含 AI 简报的 HTML 文档。
+🚀 快速开始
+1. 配置环境
+复制 `.env.example` 为 `.env`，并填入您的 API Key：
+```bash
+AI_API_KEY=sk-xxxxxxxxxxxxxx
+FEISHU_WEBHOOK_URL=https://open.feishu.cn/open-apis/bot/v2/hook/xxxx
+```
 
-音频生成端 (Hacker-Podcast):
+2. 启动服务
+```bash
+docker-compose up -d
+```
 
-功能: 基于文本内容生成多角色对话或单人述评播客。
+3. 访问服务
+- **TrendRadar 控制台**: `http://localhost:8080` (查看原始情报)
+- **Podcast Worker**: `http://localhost:8787` (音频生成后台)
 
-现状: 已跑通生成流程，但目前仍需手动输入文本素材。
+🤖 AI 分析板块说明
+系统会自动将新闻分类并分析以下三个核心领域：
+1.  **大盘风向标**：侧重沪深300、央行政策、北向资金，回答“明天涨不涨”。
+2.  **科技前沿**：侧重 AI、芯片、半导体，寻找“硬科技”机会。
+3.  **黄金与避险**：侧重金价、美元指数、地缘政治，判断“乱世买金”的时机。
 
-🌉 待打通的“数据桥梁” (The Mission)
-我们需要一个 桥接脚本 (Bridge Script) 来实现从“静态 HTML”到“动态播客脚本”的自动转换：
-
-1. 数据监听与提取 (Source)
-监控 TrendRadar/output/html/latest/ 目录下的 daily.html 或 current.html。
-
-利用 BeautifulSoup 或 Regex 提取 HTML 中的 [AI 分析区域] 文本内容。
-
-提取该报告中匹配到的 核心新闻标题与来源链接。
-
-2. 脚本重构 (Processing)
-输入: TrendRadar 原始 AI 摘要。
-
-处理: 调用 DeepSeek API，将枯燥的监管数据转化为 “理化检验室早茶” 风格的对话脚本。
-
-风格指南: 保持专业严谨，但要有“奶油中古风”般的优雅和“生酮饮食”般的干练。
-
-3. 自动喂料 (Target)
-将生成的 Script 自动写入 Hacker-Podcast 指定的输入目录。
-
-触发 Hacker-Podcast 的构建流程，产出最终 .mp3 文件。
-
-🛠️ 技术要求 (For Jule)
-路径管理: 适配 Docker 挂载路径，确保脚本能同时访问两个项目的 output 与 input 目录。
-
-触发机制:
-
-方式 A (推荐): 轮询监听 HTML 文件的时间戳更新。
-
-方式 B: 配合 TrendRadar 的 Cron 任务，在每日 19:30 后延时执行。
-
-容错处理:
-
-如果当日匹配新闻为 0，则跳过播客生成。
-
-处理 InternalServerError 等 AI 接口波动问题。
-
-📅 开发计划 (Roadmap)
-[ ] Phase 1: 编写 HTML 解析工具类。
-
-[ ] Phase 2: 接入 Podcast 脚本生成模版。
-
-[ ] Phase 3: 联调 Docker 容器间的数据同步。
-
-[ ] Phase 4: 实现飞书机器人自动推送生成的播客下载链接。
+🛠️ 技术栈
+- **TrendRadar**: Python, BeautifulSoup, SQLite
+- **Bridge**: Python, OpenAI SDK
+- **Hacker-Podcast**: Cloudflare Workers, TypeScript, Edge-TTS
+- **Docker**: 全栈容器化部署
