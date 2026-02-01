@@ -1,6 +1,8 @@
 services:
   trendradar:
-    image: wantcat/trendradar:latest
+    build:
+      context: ./TrendRadar
+      dockerfile: docker/Dockerfile
     container_name: trendradar
     restart: unless-stopped
     ports:
